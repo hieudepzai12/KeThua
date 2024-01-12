@@ -4,121 +4,154 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Baitap01
+namespace Baitap02
 {
-    class Account
+    class SanPham
     {
-        private double _balance;
-        public Account()
+        private string ten;
+        private double giaMua;
+        public SanPham() { }
+        public SanPham(string ten, double giaMua)
         {
+            this.ten = ten;
+            this.giaMua = giaMua;
+        }
+        public string Ten {
+            get { return ten; }
+            set { ten = value; }
+        }
+        public double GiaMua {
+            get { return giaMua; }
+            set {
+                if (value >= 0)
+                    giaMua = value;
+            }
+        }
+        public virtual double TinhGiaBan()
+        {
+            return 0;
+        }
+        public virtual string InTenChiTiet()
+        {
+            return Ten;
+        }
+        public virtual void Nhap()
+        {
+            Console.Write("Nhap ten san pham: ");
+            ten = Console.ReadLine();
+            Console.Write("Gia Mua: ");
+            giaMua = double.Parse(Console.ReadLine());
+        }
 
-        }
-        public Account(double _balance)
-        {
-            this._balance = _balance;
-        }
-        public double Balance {
-            set { _balance = value; }
-            get { return _balance; }
-        }
-        public virtual bool Withdraw(double amount)
-        {
-            return false;
-        }
-        public virtual bool Deposit(double amount)
-        {
-            return false;
-        }
-        public void PrintBalance()
-        {
-            Console.WriteLine("balance: {0}", _balance);
-        }
     }
-    class SavingAccount : Account
+    class Socola : SanPham
     {
-        private double intersetRate = 0.8;
-        public SavingAccount() : base()
+        private double loiNhuan;
+        public Socola() : base() { }
+        public Socola(string ten, double giaMua) : base(ten, giaMua)
         {
-
+            loiNhuan = (float)GiaMua * 0.2;
         }
-        public SavingAccount(double _balance) : base(_balance)
+        public override double TinhGiaBan()
         {
-
+            return GiaMua + loiNhuan;
         }
-        public double InterestRate {
-            set { intersetRate = value; }
-            get { return intersetRate; }
-        }
-        public override bool Withdraw(double amount)
+        public override string InTenChiTiet()
         {
-            if (amount > 0 && amount <= Balance) {
-                Balance -= amount - amount * InterestRate;
-                return true;
-            }
-
-            return false;
+            return Ten + " " + TinhGiaBan();
         }
-        public override bool Deposit(double amount)
+        public override void Nhap()
         {
-            if (amount > 0) {
-                Balance += amount + amount * InterestRate;
-                return true;
-            }
-
-            return false;
+            base.Nhap();
+            loiNhuan = (float)GiaMua * 0.2;
         }
-        class CheckingAccount : Account
+
+    }
+    class NuocUong : SanPham
+    {
+        private double loiNhuan;
+        private double phiGiuLanh;
+        public NuocUong() : base() { }
+        public NuocUong(string ten, double giaMua) : base(ten, giaMua)
         {
-            public double InterestRate {
-                get;
-                private set;
-            }
-            public CheckingAccount() : base()
-            {
-
-            }
-            public CheckingAccount(double amount)
-            {
-
-            }
-            public override bool Withdraw(double amount)
-            {
-                if (amount > 0 && amount <= Balance) 
-                {
-                    Balance -= amount;
-                    return true;
+            loiNhuan = (float)GiaMua * 0.15;
+            phiGiuLanh = (float)GiaMua * 0.1;
+        }
+        public override double TinhGiaBan()
+        {
+            return GiaMua + loiNhuan + phiGiuLanh;
+        }
+        public override string InTenChiTiet()
+        {
+            return Ten + " - " + TinhGiaBan();
+        }
+        public override void Nhap()
+        {
+            base.Nhap();
+            loiNhuan = (float)GiaMua * 0.15;
+            phiGiuLanh = (float)GiaMua * 0.1;
+        }
+    }
+    class QuanLySanPham
+    {
+        private string tenCH;
+        private SanPham[] dssp;
+        private int n;
+        public QuanLySanPham()
+        {
+            tenCH = " Cua hang ban le";
+            dssp = new SanPham[100];
+            n = 0;
+        }
+        public QuanLySanPham(int size)
+        {
+            tenCH = " Cua hang ban le";
+            dssp = new SanPham[size];
+            n = 0;
+        }
+        public void Nhap()
+        {
+            int chon;
+            SanPham sp;
+            while (true) {
+                Console.WriteLine("Them san pham Loai(1.BanhKeo/ 2.NuocUong): ");
+                chon = int.Parse(Console.ReadLine());
+                switch (chon) {
+                    case 1:
+                        sp = new Socola();
+                        sp.Nhap();
+                        dssp[n++] = sp;
+                        break;
+                    case 2:
+                        sp = new NuocUong();
+                        sp.Nhap();
+                        dssp[n++] = sp;
+                        break;
                 }
-
-                return false;
-            }
-
-            public override bool Deposit(double amount)
-            {
-                if (amount > 0) {
-                    Balance += amount;
-                    return true;
-                }
-
-                return false;
+                Console.Write("Ban co muon tiep tuc?(0.No!)");
+                chon = int.Parse(Console.ReadLine());
+                if (chon == 0)
+                    break;
             }
         }
-        class Program
+        public void InDanhSanhSP()
         {
-            static void Main(string[] args)
-            {
-                Account SAccount = new SavingAccount(5000);
-                SAccount.Deposit(1000);
-                SAccount.PrintBalance();
-                SAccount.Withdraw(3000);
-                SAccount.PrintBalance();
-
-                Account CAccount = new CheckingAccount(5000);
-                CAccount.Deposit(1000);
-                CAccount.PrintBalance();
-                CAccount.Withdraw(3000);
-                CAccount.PrintBalance();
-                Console.ReadLine();
+            Console.WriteLine(" Ten cua hang: " + tenCH);
+            Console.WriteLine(" Danh sach cac san pham: ");
+            for (int i = 0; i < n; i++) {
+                Console.WriteLine(dssp[i].InTenChiTiet());
             }
         }
     }
+class Program
+    {
+        static void Main(string[] args)
+        {
+            QuanLySanPham ql = new QuanLySanPham();
+            ql.Nhap();
+            ql.InDanhSanhSP();
+            Console.ReadLine();
+        }
+    
     }
+}
